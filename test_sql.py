@@ -1,3 +1,4 @@
+
 import sqlite3
 import os.path
 
@@ -9,6 +10,9 @@ def db():
     if os.path.exists("db.sqlite"):
         os.unlink("db.sqlite")
     f = sqlite3.connect("db.sqlite")
+    c = f.cursor()
+    c.execute("PRAGMA foreign_keys = ON;")
+    c.close()
     return f
 
 def run_query(dbconn, statement):
@@ -30,7 +34,7 @@ def test_create_and_insert(db):
     cur.close()
 
     items = run_query(db, "select name from publisher")
-    assert set (x[0] for x in items) == set(["PHI","Harper","GCP","Atomic Habits","Del Rey","Vintage"]), "Publisher mismatch"
+    assert set (x[0] for x in items) == set(["PHI","Harper","GCP","Avery","Del Rey","Vintage"]), "Publisher mismatch"
 
     items = run_query(db, "select title from books")
     assert set(x[0] for x in items) == set(["The C Programming Language","The Go Programming Language","The UNIX Programming Environment","Cryptonomicon","Deep Work","Atomic Habits","The City and The City","The Great War for Civilisation"]), "Book titles mismatch"
@@ -54,7 +58,7 @@ def test_run_query2(db):
 
     assert set(items) == expected
 
-    
+
 def test_run_query3(db):
     with open("query3.sql") as f:
         query = f.read()
@@ -77,8 +81,8 @@ def test_run_update1(db):
     cur.close()
 
     items = run_query(db, "select name from publisher")
-    assert set (x[0] for x in items) == set(["Prentice Hall","Harper","GCP","Atomic Habits","Del Rey","Vintage"]), "Publisher mismatch"
-    
+    assert set (x[0] for x in items) == set(["Prentice Hall","Harper","GCP","Avery","Del Rey","Vintage"]), "Publisher mismatch"
+
 def test_run_delete(db):
     cur = db.cursor()
     with open("delete1.sql") as f:
@@ -91,5 +95,3 @@ def test_run_delete(db):
 
     items = run_query(db, "select name from subjects")  
     assert set(x[0] for x in items) == set(["C","UNIX","Technology","Science Fiction","Productivity","Psychology","Politics","Go"]), "Subjects mismatch"
-
-    
